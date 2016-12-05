@@ -38,10 +38,9 @@ def train_step(loss):
     # PUT YOUR CODE HERE  #
     ########################
     
-    
-    raise NotImplementedError
-    
-    
+    optimizer = tf.train.AdamOptimizer()
+    opt_step = optimizer.minimize(loss)    
+    return opt_step
     ########################
     # END OF YOUR CODE    #
     ########################
@@ -89,28 +88,56 @@ def train():
     #first lets test that out model works:
     
     #initialize:
-
-    cifar10 = cifar10_utils.get_cifar10()
+    
+    weight_init_scale = 0.001
+    cifar10 = cifar10_utils.get_cifar10(validation_size=100)
 
     cnet = ConvNet(10)
     
-    x_in = tf.placeholder(tf.double)
-    y_true = tf.placeholder(tf.double)
+    x_in = tf.placeholder(tf.float32, [None,32,32,3])
+    y_true = tf.placeholder(tf.float32, [None,10])
     
-    with tf.variable_scope("ConvNet"):
-        weight_init_scale = 0.001
-        filter1=tf.Variable(tf.random_normal([5,5,3,64], stddev=weight_init_scale))
-        filter2=tf.Variable(tf.random_normal([5,5,64,64], stddev=weight_init_scale))
+    with tf.variable_scope("ConvNet",reuse=None):
+        filter1=tf.get_variable("filter1",initializer=tf.random_normal([5,5,3,64], stddev=weight_init_scale, dtype=tf.float32))
+        filter2=tf.get_variable("filter2",initializer=tf.random_normal([5,5,64,64], stddev=weight_init_scale, dtype=tf.float32))
+
                         
-        W1=tf.Variable(tf.random_normal([1600,384], stddev=weight_init_scale))
-        W2=tf.Variable(tf.random_normal([384, 192], stddev=weight_init_scale))
-        W3=tf.Variable(tf.random_normal([192,10], stddev=weight_init_scale))
+        W1=tf.get_variable("W1",initializer=tf.random_normal([4096,384], stddev=weight_init_scale, dtype=tf.float32))
+        W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192], stddev=weight_init_scale, dtype=tf.float32))
+        W3=tf.get_variable("W3", initializer = tf.random_normal([192,10], stddev=weight_init_scale, dtype=tf.float32))
     
-    logits = cnet.inference(x_in)
+    
     sess = tf.Session()
-    xbat, ybat = cifar10.get_next_batch(1)
-    sess.run(logits,feed_dict={x_in:xbat, y_true:ybat})
+
+    #define things
+    logits = cnet.inference(x_in)
+    loss= cnet.loss(logits,y_true)
+    acc = cnet.accuracy(logits, y_true)
+    opt_iter = train_step(loss)
+    sess.run(tf.initialize_all_variables())
+    
+
+    
+
+    #xbat, ybat = cifar10.train.next_batch(100)
+    
+    #begin the training
+    with sess:
+    
+        # loop
+        for i in range(FLAGS.max_steps):
+            xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
+            sess.run(opt_iter, feed_dict={x_in:xbat, y_true:ybat})
+            if i % 10 == 0:
+                xbat, ybat = cifar10.validation.next_batch(100)
+                val_acc, val_loss = sess.run([acc,loss], feed_dict={x_in:xbat, y_true:ybat})
                 
+                print("iteration : " + str(i)
+                      + ", validation loss : " 
+                      + str(val_loss)
+                      + ", validation_accuracy"
+                      + str(val_acc))
+        
     
     
     
@@ -233,8 +260,7 @@ if __name__ == '__main__':
                       help='Learning rate')
     parser.add_argument('--max_steps', type = int, default = MAX_STEPS_DEFAULT,
                       help='Number of steps to run trainer.')
-    parser.add_argument('--batch_size', type = int, default = BATCH_SIZE_DEFAULT,
-                      help='Batch size to run trainer.')
+    parser.add_argument('--batch_size', type = int, default = BATCH_SIZE_DEFAULT,                      help='Batch size to run trainer.')
     parser.add_argument('--print_freq', type = int, default = PRINT_FREQ_DEFAULT,
                       help='Frequency of evaluation on the train set')
     parser.add_argument('--eval_freq', type = int, default = EVAL_FREQ_DEFAULT,

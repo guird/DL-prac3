@@ -51,22 +51,26 @@ class ConvNet(object):
                   network. These logits can then be used with loss and accuracy
                   to evaluate the model.
         """
-        with tf.variable_scope('ConvNet'):
+        with tf.variable_scope('ConvNet',reuse=True):
             ########################
             # PUT YOUR CODE HERE  #
             ########################
-
+            filter1 = tf.get_variable("filter1",dtype=tf.float32)
+            filter2 = tf.get_variable("filter2",dtype=tf.float32)
+            W1 = tf.get_variable("W1",dtype=tf.float32)
+            W2 = tf.get_variable("W2",dtype=tf.float32)
+            W3 = tf.get_variable("W3",dtype=tf.float32)
             
             #start with conv layers
-            conv1 = tf.nn.relu(tf.nn.max_pool(tf.nn.conv2d(x, filter1, False, strides=[1,1]),[3,3], [2,2], False))
+            conv1 = tf.nn.max_pool(tf.nn.relu(tf.nn.conv2d(x, filter1,  [1,1,1,1], "SAME" )),[1,3,3,1], [1,2,2,1], "SAME")
             
-            conv2 = tf.nn.relu(tf.nn.max_pool(tf.nn.conv2d(conv1, filter2, False, strides=[1,1]), [3.3], [2,2],False))
+            conv2 = tf.nn.max_pool(tf.nn.relu(tf.nn.conv2d(conv1, filter2, [1,1,1,1], "SAME")), [1,3,3,1], [1,2,2,1],"SAME")
 
             flatten = tf.contrib.layers.flatten(conv2)
 
             fc1 = tf.nn.relu(tf.matmul(flatten, W1)) 
             fc2 = tf.nn.relu(tf.matmul(fc1, W2))
-            fc3 = tf.matmul(fc3, W3)
+            fc3 = tf.matmul(fc2, W3)
             
             logits = fc3
 
@@ -133,7 +137,14 @@ class ConvNet(object):
         ########################
         # PUT YOUR CODE HERE  #
         ########################
-        raise NotImplementedError
+
+        celoss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, labels))
+        weights = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="ConvNet")
+        reg_loss = tf.contrib.layers.apply_regularization(
+            tf.contrib.layers.l2_regularizer(1e-7), weights_list=weights)
+            
+        loss = tf.add(celoss, reg_loss)
+        
         ########################
         # END OF YOUR CODE    #
         ########################
