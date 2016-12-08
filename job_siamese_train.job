@@ -9,4 +9,4 @@ module load python/2.7.11
 module load cuda/7.5.18
 module load cudnn/7.5-v5
 
-python train_model.py --model_train siamese --print_freq 100 --checkpoint_freq 500 --max_steps 1000 
+python train_model.py --train_model siamese --print_freq 100 --checkpoint_freq 500 --max_steps 1000 
