@@ -9,6 +9,7 @@ import tensorflow as tf
 import numpy as np
 import cifar10_utils
 from convnet import ConvNet
+import sklearn
 
 LEARNING_RATE_DEFAULT = 1e-4
 BATCH_SIZE_DEFAULT = 128
@@ -108,7 +109,7 @@ def train():
     
     
     sess = tf.Session()
-
+    saver = tf.train.Saver()
     #define things
     logits = cnet.inference(x_in)
     loss= cnet.loss(logits,y_true)
@@ -128,7 +129,7 @@ def train():
         for i in range(FLAGS.max_steps):
             xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
             sess.run(opt_iter, feed_dict={x_in:xbat, y_true:ybat})
-            if i % 10 == 0:
+            if i % FLAGS.print_freq == 0:
                 xbat, ybat = cifar10.validation.next_batch(100)
                 val_acc, val_loss = sess.run([acc,loss], feed_dict={x_in:xbat, y_true:ybat})
                 
@@ -138,6 +139,11 @@ def train():
                       + ", validation_accuracy"
                       + str(val_acc))
         
+            if i% FLAGS.checkpoint_freq == 0:
+                saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
+                                              "iteration" + str(i) + ".ckpt"))
+
+                
     
     
     
@@ -211,8 +217,16 @@ def feature_extraction():
     ########################
     # PUT YOUR CODE HERE  #
     ########################
-    raise NotImplementedError
-    ########################
+    sess = tf.Session()
+    loader=tf.train.import_meta_graph(os.path.join(FLAGS.checkpoint_dir,'iteration' + str(i) + ".ckpt"))
+    
+    loader.restore(sess, tf.train.latest_checkpoint('./'))
+    
+    
+
+    feats = sklearn.manifold.TSNE(n_components=10, random_state=0)
+                                                   
+    #######################
     # END OF YOUR CODE    #
     ########################
 
