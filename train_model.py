@@ -10,7 +10,7 @@ import tensorflow as tf
 import numpy as np
 import cifar10_utils
 from convnet import ConvNet
-import sklearn
+from sklearn.manifold import TSNE
 
 LEARNING_RATE_DEFAULT = 1e-4
 BATCH_SIZE_DEFAULT = 128
@@ -127,7 +127,7 @@ def train():
     with sess:
     
         # loop
-        for i in range(FLAGS.max_steps):
+        for i in range(FLAGS.max_steps+1):
             xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
             sess.run(opt_iter, feed_dict={x_in:xbat, y_true:ybat})
             if i % FLAGS.print_freq == 0:
@@ -145,7 +145,7 @@ def train():
                 
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
-                                              "iteration" + str(i) + ".ckpt"))
+                                                  "iteration" + str(i) + ".ckpt"))
         
         xbat, ybat = cifar10.test.next_batch(100)
         
@@ -224,16 +224,32 @@ def feature_extraction():
     # PUT YOUR CODE HERE  #
     ########################
     print("extract features")
+    if FLAGS.train_model == 'linear':
+        cnet = ConvNet()
+    
+
+    with tf.variable_scope("ConvNet",reuse=None):
+        filter1=tf.get_variable("filter1",initializer=tf.random_normal([5,5,3,64],  dtype=tf.float32))
+        filter2=tf.get_variable("filter2",initializer=tf.random_normal([5,5,64,64],  dtype=tf.float32))
+
+                        
+        W1=tf.get_variable("W1",initializer=tf.random_normal([4096,384],  dtype=tf.float32))
+        W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192],  dtype=tf.float32))
+        W3=tf.get_variable("W3", initializer = tf.random_normal([192,10],  dtype=tf.float32))
+    
+
     sess = tf.Session()
-    loader=tf.train.import_meta_graph(os.path.join(FLAGS.checkpoint_dir,'iteration' + str(FLAGS.checkpoint_freq) + ".ckpt"))
+    sess.run(tf.initialize_all_variables())
+    loader=tf.train.import_meta_graph(os.path.join(FLAGS.checkpoint_dir,'iteration' + str(FLAGS.checkpoint_freq) + ".ckpt.meta"))
     
-    loader.restore(sess, tf.train.latest_checkpoint('./'))
+    loader.restore(sess, tf.train.latest_checkpoint(FLAGS.checkpoint_dir))
     
     
-    var = tf.get_variable("ConvNet/W1")
-    feats = sklearn.manifold.TSNE(n_components=10, random_state=0)
     
-    y = feats.fit_transform(var)
+    
+    feats = TSNE(n_components=10, random_state=0)
+    print("got this far")
+    y = feats.fit_transform(sess.run(W1))
     plt.imshow(y)
     
                                                
