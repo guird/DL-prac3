@@ -233,7 +233,7 @@ def train_siamese():
 
 
     
-    loss= cnet.loss(logits_anchor, logits_in,y_true, 1.0)
+    loss= cnet.loss(logits_anchor, logits_in,y_true, 0.5)
     
     opt_iter = train_step(loss)
     sess.run(tf.initialize_all_variables())
