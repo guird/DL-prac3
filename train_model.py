@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import argparse
 import os
+import sys
 
 import tensorflow as tf
 import numpy as np
@@ -133,7 +134,7 @@ def train():
                 xbat, ybat = cifar10.validation.next_batch(100)
                 val_acc, val_loss = sess.run([acc,loss], feed_dict={x_in:xbat, y_true:ybat})
                 
-                print("iteration : " + str(i)
+                sys.stderr.write("iteration : " + str(i)
                       + ", validation loss : " 
                       + str(val_loss)
                       + ", validation_accuracy"
@@ -145,7 +146,7 @@ def train():
         
         xbat, ybat = cifar10.test.next_batch(100)
         
-        print("test accuracy:" + str(sess.run(acc, feed_dict={x_in:xbat, y_true:ybat})))
+        sys.stderr.write("test accuracy:" + str(sess.run(acc, feed_dict={x_in:xbat, y_true:ybat})))
     
     
     
