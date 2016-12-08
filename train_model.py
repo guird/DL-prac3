@@ -138,15 +138,18 @@ def train():
                       + ", validation loss : " 
                       + str(val_loss)
                       + ", validation_accuracy"
-                      + str(val_acc))
+                      + str(val_acc) 
+                                 + "\n")
         
+
+                
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
                                               "iteration" + str(i) + ".ckpt"))
         
         xbat, ybat = cifar10.test.next_batch(100)
         
-        sys.stderr.write("test accuracy:" + str(sess.run(acc, feed_dict={x_in:xbat, y_true:ybat})))
+        sys.stderr.write("test accuracy:" + str(sess.run(acc, feed_dict={x_in:xbat, y_true:ybat})) + "\n")
     
     
     
