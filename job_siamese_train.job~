@@ -3,7 +3,7 @@
 #SBATCH -p gpu
 #SBATCH -t 00:20:00
 
-#SBATCH -e train_siamese_%A.error
+#SBATCH -e train_model_%A.error
 
 module load python/2.7.11
 module load cuda/7.5.18
