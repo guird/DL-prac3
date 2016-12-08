@@ -41,11 +41,11 @@ class Siamese(object):
 
         https://www.tensorflow.org/versions/r0.11/how_tos/variable_scope/index.html
         """
-        with tf.variable_scope('Siamese') as conv_scope:
+        with tf.variable_scope('Siamese', reuse = True) as conv_scope:
             ########################
             # PUT YOUR CODE HERE  #
             ########################
-                        filter1 = tf.get_variable("filter1",dtype=tf.float32)
+            filter1 = tf.get_variable("filter1",dtype=tf.float32)
             filter2 = tf.get_variable("filter2",dtype=tf.float32)
             W1 = tf.get_variable("W1",dtype=tf.float32)
             W2 = tf.get_variable("W2",dtype=tf.float32)
@@ -60,7 +60,7 @@ class Siamese(object):
 
             fc1 = tf.nn.relu(tf.matmul(flatten, W1)) 
             fc2 = tf.nn.relu(tf.matmul(fc1, W2))
-            l2_out = tf.nn.l2_normalize(fc2, 1))
+            l2_out = tf.nn.l2_normalize(fc2, 1)
             
 
 
@@ -101,7 +101,13 @@ class Siamese(object):
         ########################
         # PUT YOUR CODE HERE  #
         ########################
-        raise NotImplementedError
+        Y = tf.cast(label, tf.float32)
+        d2 = tf.reduce_sum(tf.square(tf.sub(channel_1, channel_2)),1)
+        loss = tf.reduce_sum(tf.add(tf.mul(Y , d2), 
+                      tf.mul(tf.sub(1.0, Y), tf.maximum
+                             (margin,d2))))
+                                                       
+
         ########################
         # END OF YOUR CODE    #
         ########################

@@ -236,32 +236,59 @@ class DataSet(object):
     ########################
     # PUT YOUR CODE HERE  #
     ########################
-    batch_size +=1
     start = self._index_in_epoch
-    self._index_in_epoch += batch_size
-    if self._index_in_epoch > self._num_examples:
-      self._epochs_completed += 1
-      
-      perm = np.arange(self._num_examples)
-      np.random.shuffle(perm)
-      self._images = self._images[perm]
-      self._labels = self._labels[perm]
-      
-      start = 0
-      self._index_in_epoch = batch_size
-      assert batch_size <= self._num_examples
-       
-    end = self._index_in_epoch
-    
-    anchorclass = self._labels[start]
-    classes = self._labels[start+1:end]
-    
-    for i in range(start-end - 1):
-      similarity_labels = 1 * (classes[i] == anchorclass) 
-    
     anchorimage = self._images[start]
+    anchorlabel = self._labels[start].argmax()
+    x1 = np.zeros([batch_size, 32, 32, 3])
+    x2 = np.zeros([batch_size, 32, 32, 3])
+    labels = np.zeros([batch_size])
+
+    num_same = np.floor(batch_size * fraction_same) 
+    #the number of examples with the same label as the anchor
+    num_different = batch_size - num_same
+    #the number of examples with different label
+
+    curr_same = 0
+    #the number of same examples already in the set
+    curr_different =0
+    #self explanatory
+
+    curr_number = 0
+    #total number of examples in the set
+    i = start
     
-    return anchorimage[start], self._images[start+1:end], similarity_labels
+    #this loop will go through images until it has an appropriate batch
+    while curr_number < batch_size:
+      if i < self._num_examples:
+        i += 1
+      else:
+        i = 0
+      x1[curr_number] = anchorimage
+
+      if self._labels[i].argmax() == anchorlabel: #if the labels are the same
+        if curr_same < num_same: #and IF the total number of same examples has not been reached
+          x2[curr_number] = self._images[i]
+          labels[curr_number] = 1
+          #add as an example of the same labels
+          curr_number += 1 #increment total examples 
+          curr_same += 1 #increment the current number of same examples
+        #if we already have num_same same examples, do nothing(i still iterates, above)
+      else: # so if the label is different
+        if curr_different < num_different: #and IF we do not yet have enough different examples
+          x2[curr_number] = self._images[i]
+          labels[curr_number] = 0 #not the same
+          #add as example of different labels
+          curr_number +=1
+          curr_different +=1
+    
+    self._index_in_epoch +=1
+    if self._index_in_epoch == self._num_examples:
+      self._epochs_completed +=1
+      perm = np.arange(self._num_examples)
+      self._images = self._images[perm]
+      self._lables = self._labels[perm]
+      
+        
     ########################
     # END OF YOUR CODE    #
     ########################

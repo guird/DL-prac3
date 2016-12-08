@@ -1,3 +1,2 @@
-model_checkpoint_path: "iteration5.ckpt"
+model_checkpoint_path: "iteration0.ckpt"
 all_model_checkpoint_paths: "iteration0.ckpt"
-all_model_checkpoint_paths: "iteration5.ckpt"

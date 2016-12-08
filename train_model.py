@@ -9,7 +9,11 @@ import sys
 import tensorflow as tf
 import numpy as np
 import cifar10_utils
+import cifar10_siamese_utils
+
 from convnet import ConvNet
+from siamese import Siamese
+
 from sklearn.manifold import TSNE
 
 LEARNING_RATE_DEFAULT = 1e-4
@@ -199,7 +203,73 @@ def train_siamese():
     ########################
     # PUT YOUR CODE HERE  #
     ########################
-    raise NotImplementedError
+    
+    weight_init_scale = 0.001
+    cifar10 = cifar10_siamese_utils.get_cifar10(validation_size=500)
+
+    cnet = Siamese()
+    
+    x_anchor = tf.placeholder(tf.float32, [None, 32,32,3]) 
+    x_in = tf.placeholder(tf.float32, [None,32,32,3])
+    y_true = tf.placeholder(tf.float32, [None])
+    
+    with tf.variable_scope("Siamese",reuse=None):
+        filter1=tf.get_variable("filter1",initializer=tf.random_normal([5,5,3,64], stddev=weight_init_scale, dtype=tf.float32))
+        filter2=tf.get_variable("filter2",initializer=tf.random_normal([5,5,64,64], stddev=weight_init_scale, dtype=tf.float32))
+
+                        
+        W1=tf.get_variable("W1",initializer=tf.random_normal([4096,384], stddev=weight_init_scale, dtype=tf.float32))
+        W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192], stddev=weight_init_scale, dtype=tf.float32))
+        W3=tf.get_variable("W3", initializer = tf.random_normal([384,2], stddev=weight_init_scale, dtype=tf.float32))
+    
+    
+    sess = tf.Session()
+    saver = tf.train.Saver()
+    #define things
+    logits_anchor = cnet.inference(x_anchor)
+    logits_in = cnet.inference(x_in)
+
+
+
+
+    
+    loss= cnet.loss(logits_anchor, logits_in,y_true, 1.0)
+    
+    opt_iter = train_step(loss)
+    sess.run(tf.initialize_all_variables())
+    
+
+    
+
+    #xbat, ybat = cifar10.train.next_batch(100)
+    
+    #begin the training
+    with sess:
+    
+        # loop
+        for i in range(FLAGS.max_steps+1):
+            ancbat, xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
+
+            sess.run(opt_iter, feed_dict={x_anchor: ancbat, x_in:xbat, y_true:ybat})
+            if i % FLAGS.print_freq == 0:
+                ancbat, xbat, ybat = cifar10.validation.next_batch(100)
+                val_loss = sess.run([loss], feed_dict={x_anchor: ancbat,x_in:xbat, y_true:ybat})
+                
+                sys.stderr.write("iteration : " + str(i)
+                      + ", validation loss : " 
+                      + str(val_loss)
+                                 + "\n")
+        
+
+                
+            if i% FLAGS.checkpoint_freq == 0:
+                saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
+                                                  "iteration" + str(i) + ".ckpt"))
+        
+        ancbat, xbat, ybat = cifar10.test.next_batch(100)
+        
+        sys.stderr.write("test loss:" + str(sess.run(loss, feed_dict={x_anchor: ancbat, x_in:xbat, y_true:ybat})) + "\n")
+    
     ########################
     # END OF YOUR CODE    #
     ########################
