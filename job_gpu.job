@@ -2,7 +2,7 @@
 #SBATCH -n 1
 #SBATCH -p gpu
 #SBATCH -t 00:01:00
-"#SBATCH -o train_model_%A.output"
+
 #SBATCH -e train_model_%A.error
 
 module load python/2.7.11
