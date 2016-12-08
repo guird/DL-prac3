@@ -142,8 +142,10 @@ def train():
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
                                               "iteration" + str(i) + ".ckpt"))
-
-                
+        
+        xbat, ybat = cifar10.test.next_batch(100)
+        
+        print("test accuracy:" sess.run(acc, feed_dict={x_in:xbat, y_true:ybat}))
     
     
     

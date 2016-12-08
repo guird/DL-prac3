@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -n 1
 #SBATCH -p gpu
-#SBATCH -t 00:00:10
+#SBATCH -t 00:01:00
 #SBATCH -o train_model_%A.output
 #SBATCH -e train_model_%A.error
 
@@ -9,4 +9,4 @@ module load python/2.7.11
 module load cuda/7.5.18
 module load cudnn/7.5-v5
 
-python train_model.py 2
+python train_model.py 
