@@ -145,7 +145,7 @@ def train():
         
         xbat, ybat = cifar10.test.next_batch(100)
         
-        print("test accuracy:" sess.run(acc, feed_dict={x_in:xbat, y_true:ybat}))
+        print("test accuracy:" + str(sess.run(acc, feed_dict={x_in:xbat, y_true:ybat})))
     
     
     
