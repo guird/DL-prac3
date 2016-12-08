@@ -223,15 +223,20 @@ def feature_extraction():
     ########################
     # PUT YOUR CODE HERE  #
     ########################
+    print("extract features")
     sess = tf.Session()
-    loader=tf.train.import_meta_graph(os.path.join(FLAGS.checkpoint_dir,'iteration' + str(i) + ".ckpt"))
+    loader=tf.train.import_meta_graph(os.path.join(FLAGS.checkpoint_dir,'iteration' + str(FLAGS.checkpoint_freq) + ".ckpt"))
     
     loader.restore(sess, tf.train.latest_checkpoint('./'))
     
     
-
+    var = tf.get_variable("ConvNet/W1")
     feats = sklearn.manifold.TSNE(n_components=10, random_state=0)
-                                                   
+    
+    y = feats.fit_transform(var)
+    plt.imshow(y)
+    
+                                               
     #######################
     # END OF YOUR CODE    #
     ########################
