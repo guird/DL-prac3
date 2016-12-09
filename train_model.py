@@ -327,7 +327,7 @@ def feature_extraction():
 
     xbat, ybat = cifar10.test.next_batch(1000)
     
-    print(sess.run(acc, feed_dict  = {x_in : xbat, y_true : ybat}))
+    sys.stderr.write(str(sess.run(acc, feed_dict  = {x_in : xbat, y_true : ybat})))
     
     
     
@@ -402,12 +402,7 @@ if __name__ == '__main__':
                       help='Training or feature extraction')
     parser.add_argument('--train_model', type = str, default = 'linear',
                       help='Type of model. Possible options: linear and siamese')
-    
-    #################################additional argument for the one-vs-rest###############
-    parser.add_argument('--one_vs_rest', type=int, default=None,
-                        help="training as one-vs-rest or not.
-                        None for regular multicalss, 0-9 for one-vs-rest of corresponding class")
-    ########################################################################################
+
 
     FLAGS, unparsed = parser.parse_known_args()
 
