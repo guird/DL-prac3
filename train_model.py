@@ -117,7 +117,13 @@ def train():
     saver = tf.train.Saver()
     #define things
     logits = cnet.inference(x_in)
-    loss= cnet.loss(logits,y_true)
+    
+    if FLAGS.one_vs_rest == None:
+        loss= cnet.loss(logits,y_true)
+    else:
+        
+        
+        loss = ovr_loss(logits,y_true)
     acc = cnet.accuracy(logits, y_true)
     opt_iter = train_step(loss)
     sess.run(tf.initialize_all_variables())
@@ -150,10 +156,10 @@ def train():
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
                                                   "iteration" + str(i) + ".ckpt"))
+            if i%FLAGS.eval_freq ==0:
+                xbat, ybat = cifar10.test.next_batch(100)
         
-        xbat, ybat = cifar10.test.next_batch(100)
-        
-        sys.stderr.write("test accuracy:" + str(sess.run(acc, feed_dict={x_in:xbat, y_true:ybat})) + "\n")
+                sys.stderr.write("test accuracy:" + str(sess.run(acc, feed_dict={x_in:xbat, y_true:ybat})) + "\n")
     
     
     
@@ -265,10 +271,10 @@ def train_siamese():
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
                                                   "iteration" + str(i) + ".ckpt"))
+            if i% FLAGS.eval_freq == 0:
+                ancbat, xbat, ybat = cifar10.test.next_batch(100)
         
-        ancbat, xbat, ybat = cifar10.test.next_batch(100)
-        
-        sys.stderr.write("test loss:" + str(sess.run(loss, feed_dict={x_anchor: ancbat, x_in:xbat, y_true:ybat})) + "\n")
+                sys.stderr.write("test loss:" + str(sess.run(loss, feed_dict={x_anchor: ancbat, x_in:xbat, y_true:ybat})) + "\n")
     
     ########################
     # END OF YOUR CODE    #
@@ -296,7 +302,10 @@ def feature_extraction():
     print("extract features")
     if FLAGS.train_model == 'linear':
         cnet = ConvNet()
-    
+        cifar10 = cifar10_utils.get_cifar10()
+
+    x_in = tf.placeholder(tf.float32, [None,32,32,3])
+    y_true = tf.placeholder(tf.float32, [None,10])
 
     with tf.variable_scope("ConvNet",reuse=None):
         filter1=tf.get_variable("filter1",initializer=tf.random_normal([5,5,3,64],  dtype=tf.float32))
@@ -307,20 +316,24 @@ def feature_extraction():
         W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192],  dtype=tf.float32))
         W3=tf.get_variable("W3", initializer = tf.random_normal([192,10],  dtype=tf.float32))
     
-
+    logits = cnet.inference(x_in)
+    acc = cnet.accuracy(cnet.inference(x_in), y_true)
+    
     sess = tf.Session()
     sess.run(tf.initialize_all_variables())
     loader=tf.train.import_meta_graph(os.path.join(FLAGS.checkpoint_dir,'iteration' + str(FLAGS.checkpoint_freq) + ".ckpt.meta"))
     
     loader.restore(sess, tf.train.latest_checkpoint(FLAGS.checkpoint_dir))
+
+    xbat, ybat = cifar10.test.next_batch(1000)
+    
+    print(sess.run(acc, feed_dict  = {x_in : xbat, y_true : ybat}))
     
     
     
     
-    feats = TSNE(n_components=10, random_state=0)
-    print("got this far")
-    y = feats.fit_transform(sess.run(W1))
-    plt.imshow(y)
+    
+
     
                                                
     #######################
@@ -371,7 +384,8 @@ if __name__ == '__main__':
                       help='Learning rate')
     parser.add_argument('--max_steps', type = int, default = MAX_STEPS_DEFAULT,
                       help='Number of steps to run trainer.')
-    parser.add_argument('--batch_size', type = int, default = BATCH_SIZE_DEFAULT,                      help='Batch size to run trainer.')
+    parser.add_argument('--batch_size', type = int, default = BATCH_SIZE_DEFAULT,
+                      help='Batch size to run trainer.')
     parser.add_argument('--print_freq', type = int, default = PRINT_FREQ_DEFAULT,
                       help='Frequency of evaluation on the train set')
     parser.add_argument('--eval_freq', type = int, default = EVAL_FREQ_DEFAULT,
@@ -388,6 +402,12 @@ if __name__ == '__main__':
                       help='Training or feature extraction')
     parser.add_argument('--train_model', type = str, default = 'linear',
                       help='Type of model. Possible options: linear and siamese')
+    
+    #################################additional argument for the one-vs-rest###############
+    parser.add_argument('--one_vs_rest', type=int, default=None,
+                        help="training as one-vs-rest or not.
+                        None for regular multicalss, 0-9 for one-vs-rest of corresponding class")
+    ########################################################################################
 
     FLAGS, unparsed = parser.parse_known_args()
 
