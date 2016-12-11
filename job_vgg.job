@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH -n 1
+#SBATCH -p gpu
+#SBATCH -t 02:00:00
+
+#SBATCH -e train_model_full_run.error
+
+module load python/2.7.11
+module load cuda/7.5.18
+module load cudnn/7.5-v5
+
+python retrain_vgg.py 
