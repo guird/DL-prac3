@@ -219,6 +219,8 @@ def train_siamese():
 
     cnet = Siamese()
     
+    swriter = tf.summary_writer(FLAGS.logdir + "/Siamese")
+    
     x_anchor = tf.placeholder(tf.float32, [None, 32,32,3]) 
     x_in = tf.placeholder(tf.float32, [None,32,32,3])
     y_true = tf.placeholder(tf.float32, [None])
@@ -269,8 +271,11 @@ def train_siamese():
                       + ", validation loss : " 
                       + str(val_loss)
                                  + "\n")
-        
-
+                swriter.add_summary(
+                    sess.run(tf.scalar_summary("accuracy", val_acc))
+                    ,i)
+                
+                
                 
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
