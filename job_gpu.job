@@ -3,10 +3,10 @@
 #SBATCH -p gpu
 #SBATCH -t 00:01:00
 
-#SBATCH -e train_model_%A.error
+#SBATCH -e train_model_full_run.error
 
 module load python/2.7.11
 module load cuda/7.5.18
 module load cudnn/7.5-v5
 
-python train_model.py --is_train True --print_eval 100 --checkpoint_freq 500 --max_steps 1000
+python train_model.py 

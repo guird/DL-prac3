@@ -74,7 +74,7 @@ class ConvNet(object):
             
             logits = fc3
 
-
+            
             ########################
             # END OF YOUR CODE    #
             ########################
@@ -140,8 +140,8 @@ class ConvNet(object):
 
         celoss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, labels))
         weights = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="ConvNet")
-        reg_loss = tf.contrib.layers.apply_regularization(
-            tf.contrib.layers.l2_regularizer(1e-7), weights_list=weights)
+        reg_loss = tf.reduce_mean(tf.contrib.layers.apply_regularization(
+            tf.contrib.layers.l2_regularizer(1e-7), weights_list=weights))
             
         loss = tf.add(celoss, reg_loss)
         

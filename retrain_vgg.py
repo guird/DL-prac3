@@ -7,6 +7,9 @@ import os
 
 import tensorflow as tf
 import numpy as np
+import vgg
+import cifar10_utils
+import sys
 
 LEARNING_RATE_DEFAULT = 1e-4
 BATCH_SIZE_DEFAULT = 128
@@ -36,7 +39,10 @@ def train_step(loss):
     ########################
     # PUT YOUR CODE HERE  #
     ########################
-    raise NotImplementedError
+
+    optimizer = tf.train.AdamOptimizer()
+    weights = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="classifier")
+    train_op = optimizer.minimize(loss, var_list=weights)
     ########################
     # END OF YOUR CODE    #
     ########################
@@ -65,6 +71,8 @@ def train():
     while it is alright to do it over minibatch for train set.
     """
 
+    
+    
     # Set the random seeds for reproducibility. DO NOT CHANGE.
     tf.set_random_seed(42)
     np.random.seed(42)
@@ -72,7 +80,94 @@ def train():
     ########################
     # PUT YOUR CODE HERE  #
     ########################
-    raise NotImplementedError
+    weight_init_scale = 0.001
+    cifar10 = cifar10_utils.get_cifar10(validation_size=500)
+
+
+    
+    x_in = tf.placeholder(tf.float32, [None,32,32,3])
+    y_true = tf.placeholder(tf.float32, [None,10])
+    
+    with tf.variable_scope("classifier",reuse=None):
+
+                        
+        W1=tf.get_variable("W1",initializer=tf.random_normal([512,384], stddev=weight_init_scale, dtype=tf.float32))
+        W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192], stddev=weight_init_scale, dtype=tf.float32))
+        W3=tf.get_variable("W3", initializer = tf.random_normal([192,10], stddev=weight_init_scale, dtype=tf.float32))
+    
+    
+    sess = tf.Session()
+    saver = tf.train.Saver()
+    #define things
+
+ 
+    
+    
+    p5, assign_ops = vgg.load_pretrained_VGG16_pool5(x_in)
+
+    pool5 = tf.stop_gradient(p5)
+    
+    flatten = tf.contrib.layers.flatten(pool5)
+
+    fc1 = tf.nn.relu(tf.matmul(flatten, W1)) 
+    fc2 = tf.nn.relu(tf.matmul(fc1, W2))
+    logits = tf.matmul(fc2, W3)
+    
+ 
+        
+    
+    celoss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, y_true))
+    #weights = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="classifier")
+    #reg_loss = tf.reduce_mean(tf.contrib.layers.apply_regularization(
+    #    tf.contrib.layers.l2_regularizer(1e-7), weights_list=weights))
+            
+    loss = celoss 
+    
+    acc = tf.reduce_mean(
+        tf.cast(
+            tf.equal(
+                tf.argmax(logits, 1), 
+                tf.argmax(y_true, 1)),
+            dtype = tf.float32))
+    
+    opt_iter = train_step(loss)
+ 
+
+
+    
+
+    xbat, ybat = cifar10.train.next_batch(100)
+    
+    #begin the training
+    sess.run(tf.initialize_all_variables())
+    sess.run(assign_ops)
+    with sess:
+    
+        # loop
+        for i in range(FLAGS.max_steps+1):
+            xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
+            sess.run(opt_iter, feed_dict={x_in:xbat, y_true:ybat})
+            if i % FLAGS.print_freq == 0:
+                xbat, ybat = cifar10.validation.next_batch(100)
+                val_acc, val_loss = sess.run([acc,loss], feed_dict={x_in:xbat, y_true:ybat})
+                
+                sys.stderr.write("iteration : " + str(i)
+                      + ", validation loss : " 
+                      + str(val_loss)
+                      + ", validation_accuracy"
+                      + str(val_acc) 
+                                 + "\n")
+        
+
+                
+            if i% FLAGS.checkpoint_freq == 0:
+                saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
+                                                  "iteration" + str(i) + ".ckpt"))
+            if i%FLAGS.eval_freq ==0:
+                xbat, ybat = cifar10.test.next_batch(100)
+        
+                sys.stderr.write("test accuracy:" + str(sess.run(acc, feed_dict={x_in:xbat, y_true:ybat})) + "\n")
+    
     ########################
     # END OF YOUR CODE    #
     ########################

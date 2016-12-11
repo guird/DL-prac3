@@ -118,17 +118,17 @@ def train():
     #define things
     logits = cnet.inference(x_in)
     
-    if FLAGS.one_vs_rest == None:
-        loss= cnet.loss(logits,y_true)
-    else:
+    
+    loss= cnet.loss(logits,y_true)
+    
         
         
-        loss = ovr_loss(logits,y_true)
+    
     acc = cnet.accuracy(logits, y_true)
     opt_iter = train_step(loss)
     sess.run(tf.initialize_all_variables())
     
-
+    swriter = tf.train.SummaryWriter(FLAGS.log_dir+ '/ConvNet',  sess.graph)
     
 
     #xbat, ybat = cifar10.train.next_batch(100)
@@ -150,12 +150,16 @@ def train():
                       + ", validation_accuracy"
                       + str(val_acc) 
                                  + "\n")
-        
+                swriter.add_summary(
+                    sess.run(tf.scalar_summary("accuracy", val_acc),
+                             feed_dict = {x_in : xbat, y_true: ybat}), i)
 
                 
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
-                                                  "iteration" + str(i) + ".ckpt"))
+                                                  "checkpoint" + ".ckpt"))
+                print(sess.run(W1))
+                
             if i%FLAGS.eval_freq ==0:
                 xbat, ybat = cifar10.test.next_batch(100)
         
@@ -270,7 +274,8 @@ def train_siamese():
                 
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
-                                                  "iteration" + str(i) + ".ckpt"))
+                                                  "checkpoint"+  ".ckpt"))
+        
             if i% FLAGS.eval_freq == 0:
                 ancbat, xbat, ybat = cifar10.test.next_batch(100)
         
@@ -320,11 +325,14 @@ def feature_extraction():
     acc = cnet.accuracy(cnet.inference(x_in), y_true)
     
     sess = tf.Session()
-    sess.run(tf.initialize_all_variables())
-    loader=tf.train.import_meta_graph(os.path.join(FLAGS.checkpoint_dir,'iteration' + str(FLAGS.checkpoint_freq) + ".ckpt.meta"))
     
-    loader.restore(sess, tf.train.latest_checkpoint(FLAGS.checkpoint_dir))
-
+    #loader=tf.train.import_meta_graph(os.path.join(FLAGS.checkpoint_dir,'checkpoint' + ".ckpt.meta"))
+    loader = tf.train.Saver()
+    sess.run(tf.initialize_all_variables())
+    print(sess.run(W1))
+    loader.restore(sess, tf.train.latest_checkpoint('./checkpoints'))
+    
+    print(sess.run(W1))
     xbat, ybat = cifar10.test.next_batch(1000)
     
     sys.stderr.write(str(sess.run(acc, feed_dict  = {x_in : xbat, y_true : ybat})))
