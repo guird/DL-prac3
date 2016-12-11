@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -n 1
 #SBATCH -p gpu
-#SBATCH -t 00:01:00
+#SBATCH -t 02:00:00
 
 #SBATCH -e train_model_full_run.error
 
