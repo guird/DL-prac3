@@ -219,7 +219,7 @@ def train_siamese():
 
     cnet = Siamese()
     
-    swriter = tf.train.SummaryWriter(FLAGS.logdir + "/Siamese")
+    swriter = tf.train.SummaryWriter(FLAGS.log_dir + "/Siamese")
     
     x_anchor = tf.placeholder(tf.float32, [None, 32,32,3]) 
     x_in = tf.placeholder(tf.float32, [None,32,32,3])
