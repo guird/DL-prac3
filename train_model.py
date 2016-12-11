@@ -157,7 +157,7 @@ def train():
                 
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
-                                                  "checkpoint" + ".ckpt"))
+                                                  "ConvNet" + "checkpoint.ckpt"))
                 print(sess.run(W1))
                 
             if i%FLAGS.eval_freq ==0:
@@ -219,7 +219,7 @@ def train_siamese():
 
     cnet = Siamese()
     
-    swriter = tf.summary_writer(FLAGS.logdir + "/Siamese")
+    swriter = tf.train.SummaryWriter(FLAGS.logdir + "/Siamese")
     
     x_anchor = tf.placeholder(tf.float32, [None, 32,32,3]) 
     x_in = tf.placeholder(tf.float32, [None,32,32,3])
@@ -279,7 +279,7 @@ def train_siamese():
                 
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
-                                                  "checkpoint"+  ".ckpt"))
+                                                  +"/siamese"+  "checkpoint.ckpt"))
         
             if i% FLAGS.eval_freq == 0:
                 ancbat, xbat, ybat = cifar10.test.next_batch(100)
@@ -316,7 +316,7 @@ def feature_extraction():
 
     x_in = tf.placeholder(tf.float32, [None,32,32,3])
     y_true = tf.placeholder(tf.float32, [None,10])
-
+    
     with tf.variable_scope("ConvNet",reuse=None):
         filter1=tf.get_variable("filter1",initializer=tf.random_normal([5,5,3,64],  dtype=tf.float32))
         filter2=tf.get_variable("filter2",initializer=tf.random_normal([5,5,64,64],  dtype=tf.float32))
@@ -326,22 +326,19 @@ def feature_extraction():
         W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192],  dtype=tf.float32))
         W3=tf.get_variable("W3", initializer = tf.random_normal([192,10],  dtype=tf.float32))
     
-    logits = cnet.inference(x_in)
-    acc = cnet.accuracy(cnet.inference(x_in), y_true)
+        flatten=tf.get_variable("flatten", [100, 4096])
+        fc1=tf.get_variable("fc1", [100, 384])
+        fc2=tf.get_variable("fc2", [100, 192])
+    
+    loader = tf.train.Saver()
+    
     
     sess = tf.Session()
+
+    loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet" )
     
-    #loader=tf.train.import_meta_graph(os.path.join(FLAGS.checkpoint_dir,'checkpoint' + ".ckpt.meta"))
-    loader = tf.train.Saver()
-    sess.run(tf.initialize_all_variables())
-    print(sess.run(W1))
-    loader.restore(sess, tf.train.latest_checkpoint('./checkpoints'))
-    
-    print(sess.run(W1))
-    xbat, ybat = cifar10.test.next_batch(1000)
-    
-    sys.stderr.write(str(sess.run(acc, feed_dict  = {x_in : xbat, y_true : ybat})))
-    
+    print(sess.run(fc1))
+
     
     
     

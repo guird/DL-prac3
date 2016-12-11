@@ -65,12 +65,14 @@ class ConvNet(object):
             conv1 = tf.nn.max_pool(tf.nn.relu(tf.nn.conv2d(x, filter1,  [1,1,1,1], "SAME" )),[1,3,3,1], [1,2,2,1], "SAME")
             
             conv2 = tf.nn.max_pool(tf.nn.relu(tf.nn.conv2d(conv1, filter2, [1,1,1,1], "SAME")), [1,3,3,1], [1,2,2,1],"SAME")
-
-            flatten = tf.contrib.layers.flatten(conv2)
-
-            fc1 = tf.nn.relu(tf.matmul(flatten, W1)) 
-            fc2 = tf.nn.relu(tf.matmul(fc1, W2))
-            fc3 = tf.matmul(fc2, W3)
+            
+            flatten = tf.contrib.layers.flatten(conv2)#, name="flatten")
+            np.save(flatten, "flatten")
+            fc1 = tf.nn.relu(tf.matmul(flatten, W1))#, name="fc1") 
+            np.save(fc1, "flatten")
+            fc2 = tf.nn.relu(tf.matmul(fc1, W2))#,name="fc2")
+            np.save(fc2, "flatten")
+            fc3 = tf.matmul(fc2, W3)#, name="fc3")
             
             logits = fc3
 
