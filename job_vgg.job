@@ -3,7 +3,7 @@
 #SBATCH -p gpu
 #SBATCH -t 02:00:00
 
-#SBATCH -e train_model_full_run.error
+#SBATCH -e train_vgg.error
 
 module load python/2.7.11
 module load cuda/7.5.18
