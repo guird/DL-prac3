@@ -277,7 +277,8 @@ def train_siamese():
                       + str(val_loss)
                                  + "\n")
                 swriter.add_summary(
-                    sess.run(tf.scalar_summary("loss", val_loss))
+                    sess.run(tf.scalar_summary("loss", val_loss), 
+                             feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
                     ,i)
                 
                 
