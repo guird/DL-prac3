@@ -1,0 +1,65 @@
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcublas.so.7.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcudnn.so.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcufft.so.7.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcurand.so.7.5 locally
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:102] Found device 0 with properties: 
+name: Tesla K40m
+major: 3 minor: 5 memoryClockRate (GHz) 0.745
+pciBusID 0000:02:00.0
+Total memory: 11.17GiB
+Free memory: 11.10GiB
+W tensorflow/stream_executor/cuda/cuda_driver.cc:572] creating context when one is currently active; existing: 0x32d3f20
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:102] Found device 1 with properties: 
+name: Tesla K40m
+major: 3 minor: 5 memoryClockRate (GHz) 0.745
+pciBusID 0000:82:00.0
+Total memory: 11.17GiB
+Free memory: 11.10GiB
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:59] cannot enable peer access from device ordinal 0 to device ordinal 1
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:59] cannot enable peer access from device ordinal 1 to device ordinal 0
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:126] DMA: 0 1 
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:136] 0:   Y N 
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:136] 1:   N Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:838] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K40m, pci bus id: 0000:02:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:838] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K40m, pci bus id: 0000:82:00.0)
+iteration : 0, validation loss : [39.990837]
+Traceback (most recent call last):
+  File "train_model.py", line 419, in <module>
+    tf.app.run()
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/platform/app.py", line 30, in run
+    sys.exit(main(sys.argv))
+  File "train_model.py", line 383, in main
+    train_siamese()
+  File "train_model.py", line 275, in train_siamese
+    sess.run(tf.scalar_summary("loss", val_loss))
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/client/session.py", line 710, in run
+    run_metadata_ptr)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/client/session.py", line 908, in _run
+    feed_dict_string, options, run_metadata)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/client/session.py", line 958, in _do_run
+    target_list, options, run_metadata)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/client/session.py", line 978, in _do_call
+    raise type(e)(node_def, op, message)
+tensorflow.python.framework.errors.InvalidArgumentError: tags and values not the same shape: [] != [1] (tag 'loss')
+	 [[Node: ScalarSummary = ScalarSummary[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/cpu:0"](ScalarSummary/tags, ScalarSummary/values)]]
+Caused by op u'ScalarSummary', defined at:
+  File "train_model.py", line 419, in <module>
+    tf.app.run()
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/platform/app.py", line 30, in run
+    sys.exit(main(sys.argv))
+  File "train_model.py", line 383, in main
+    train_siamese()
+  File "train_model.py", line 275, in train_siamese
+    sess.run(tf.scalar_summary("loss", val_loss))
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/ops/logging_ops.py", line 316, in scalar_summary
+    val = gen_logging_ops._scalar_summary(tags=tags, values=values, name=scope)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/ops/gen_logging_ops.py", line 242, in _scalar_summary
+    name=name)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/framework/op_def_library.py", line 703, in apply_op
+    op_def=op_def)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/framework/ops.py", line 2317, in create_op
+    original_op=self._default_original_op, op_def=op_def)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/framework/ops.py", line 1239, in __init__
+    self._traceback = _extract_stack()
+

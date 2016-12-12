@@ -1,0 +1,15 @@
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcublas.so.7.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcudnn.so.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcufft.so.7.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcurand.so.7.5 locally
+Traceback (most recent call last):
+  File "train_model.py", line 422, in <module>
+    tf.app.run()
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/platform/app.py", line 30, in run
+    sys.exit(main(sys.argv))
+  File "train_model.py", line 386, in main
+    train_siamese()
+  File "train_model.py", line 222, in train_siamese
+    swriter = tf.summary_writer(FLAGS.logdir + "/Siamese")
+AttributeError: 'module' object has no attribute 'summary_writer'
