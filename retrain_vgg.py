@@ -85,13 +85,13 @@ def train():
 
 
     
-    x_in = tf.placeholder(tf.float32, [None,None,None,3])
+    x_in = tf.placeholder(tf.float32, [None,32,32,3])
     y_true = tf.placeholder(tf.float32, [None,10])
     
     with tf.variable_scope("classifier",reuse=None):
 
                         
-        W1=tf.get_variable("W1",initializer=tf.random_normal([512,384], stddev=weight_init_scale, dtype=tf.float32))
+        W1=tf.get_variable("W1",initializer=tf.random_normal([2048,384], stddev=weight_init_scale, dtype=tf.float32))
         W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192], stddev=weight_init_scale, dtype=tf.float32))
         W3=tf.get_variable("W3", initializer = tf.random_normal([192,10], stddev=weight_init_scale, dtype=tf.float32))
     
@@ -111,8 +111,7 @@ def train():
 
     fc1 = tf.nn.relu(tf.matmul(flatten, W1)) 
     fc2 = tf.nn.relu(tf.matmul(fc1, W2))
-    logits = tf.matmul(fc2, W3)
-    
+    logits = tf.matmul(fc2, W3)    
  
         
     
@@ -142,7 +141,7 @@ def train():
     sess.run(tf.initialize_all_variables())
     sess.run(assign_ops)
     with sess:
-        swriter = tf.train.SummaryWriter();
+        swriter = tf.train.SummaryWriter(FLAGS.log_dir + "\vgg");
         # loop
         for i in range(FLAGS.max_steps+1):
             xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
@@ -157,7 +156,7 @@ def train():
                       + ", validation_accuracy"
                       + str(val_acc) 
                                  + "\n")
-                swriter.add_summary(sess.run(tf.scalar_summary(val_acc)), i)
+                swriter.add_summary(sess.run(tf.scalar_summary("accuracy", val_acc)), i)
 
                 
             if i% FLAGS.checkpoint_freq == 0:
