@@ -85,7 +85,7 @@ def train():
 
 
     
-    x_in = tf.placeholder(tf.float32, [None,32,32,3])
+    x_in = tf.placeholder(tf.float32, [None,None,None,3])
     y_true = tf.placeholder(tf.float32, [None,10])
     
     with tf.variable_scope("classifier",reuse=None):
@@ -142,7 +142,7 @@ def train():
     sess.run(tf.initialize_all_variables())
     sess.run(assign_ops)
     with sess:
-    
+        swriter = tf.train.SummaryWriter();
         # loop
         for i in range(FLAGS.max_steps+1):
             xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
@@ -157,7 +157,7 @@ def train():
                       + ", validation_accuracy"
                       + str(val_acc) 
                                  + "\n")
-        
+                swriter.add_summary(sess.run(tf.scalar_summary(val_acc)), i)
 
                 
             if i% FLAGS.checkpoint_freq == 0:
