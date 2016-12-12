@@ -8,6 +8,7 @@ import sys
 
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 import cifar10_utils
 import cifar10_siamese_utils
 
@@ -116,7 +117,7 @@ def train():
     sess = tf.Session()
     saver = tf.train.Saver()
     #define things
-    logits = cnet.inference(x_in)
+    logits, flatten, fc1, fc2 = cnet.inference(x_in)
     
     
     loss= cnet.loss(logits,y_true)
@@ -135,7 +136,7 @@ def train():
     
     #begin the training
     with sess:
-    
+        
         # loop
         for i in range(FLAGS.max_steps+1):
             xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
@@ -156,9 +157,13 @@ def train():
 
                 
             if i% FLAGS.checkpoint_freq == 0:
-                saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
-                                                  "ConvNet" + "checkpoint.ckpt"))
-                print(sess.run(W1))
+                lo, flatsave, fc1save, fc2save = sess.run(cnet.inference(x_in), feed_dict={x_in:xbat, y_true:ybat})
+                np.save(FLAGS.checkpoint_dir +"/ConvNet/flatten", flatsave)
+                np.save(FLAGS.checkpoint_dir + "/ConvNet/fc1", fc1save)
+                np.save(FLAGS.checkpoint_dir + "/ConvNet/fc2", fc2save)
+                saver.save(sess, FLAGS.checkpoint_dir + 
+                                                  "/ConvNet/" + "checkpoint.ckpt")
+                
                 
             if i%FLAGS.eval_freq ==0:
                 xbat, ybat = cifar10.test.next_batch(100)
@@ -326,20 +331,34 @@ def feature_extraction():
         W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192],  dtype=tf.float32))
         W3=tf.get_variable("W3", initializer = tf.random_normal([192,10],  dtype=tf.float32))
     
-        flatten=tf.get_variable("flatten", [100, 4096])
-        fc1=tf.get_variable("fc1", [100, 384])
-        fc2=tf.get_variable("fc2", [100, 192])
-    
+
     loader = tf.train.Saver()
     
     
     sess = tf.Session()
 
-    loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet" )
+    loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet" + "checkpoint.ckpt" )
     
-    print(sess.run(fc1))
+    flatten = np.load(FLAGS.checkpoint_dir + "/ConvNet/flatten.npy")
+    fc1 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc1.npy")
+    fc2 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc2.npy")
 
+    ts = TSNE(n_components =2)
+
+    f2 = ts.fit_transform(fc2)
+    f1 = ts.fit_transform(fc1)
+    ff = ts.fit_transform(flatten)
     
+    
+
+    plot1 = plt.imshow(ff[:,0],f[:,1])
+    plot2 = plt.imshow(f1[:,0],f[:,1])
+    plot3 = plt.imshow(f2[:,0], f[:,1])
+
+    plot1.savefig("flatten.png")
+    plot2.savefig("fc1.png")
+    plot3.savefig("fc2.png")
+
     
     
     
