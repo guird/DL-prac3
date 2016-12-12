@@ -8,6 +8,7 @@ import sys
 
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 import cifar10_utils
 import cifar10_siamese_utils
 
@@ -342,8 +343,10 @@ def feature_extraction():
     fc1 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc1.npy")
     fc2 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc2.npy")
 
+    ts = TSNE(n_components =2)
+    f = ts.fit_transform(fc2)
     
-    
+    plt.show(plt.imshow(f[:,0],f[:,1]))
     
     
 
