@@ -157,7 +157,7 @@ def train():
                       + str(val_acc) 
                                  + "\n")
                 swriter.add_summary(sess.run(tf.scalar_summary("accuracy", val_acc)), i)
-
+                #why?
                 
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
