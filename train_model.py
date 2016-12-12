@@ -344,9 +344,22 @@ def feature_extraction():
     fc2 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc2.npy")
 
     ts = TSNE(n_components =2)
-    f = ts.fit_transform(fc2)
+
+    f2 = ts.fit_transform(fc2)
+    f1 = ts.fit_transform(fc1)
+    ff = ts.fit_transform(flatten)
     
-    plt.show(plt.imshow(f[:,0],f[:,1]))
+    
+
+    plot1 = plt.imshow(ff[:,0],f[:,1])
+    plot2 = plt.imshow(f1[:,0],f[:,1])
+    plot3 = plt.imshow(f2[:,0], f[:,1])
+
+    plot1.savefig("flatten.png")
+    plot2.savefig("fc1.png")
+    plot3.savefig("fc2.png")
+
+    
     
     
 
