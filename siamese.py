@@ -69,7 +69,7 @@ class Siamese(object):
             # END OF YOUR CODE    #
             ########################
 
-        return l2_out
+        return l2_out, flatten, fc1, fc2
 
     def loss(self, channel_1, channel_2, label, margin):
         """
