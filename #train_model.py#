@@ -8,6 +8,7 @@ import sys
 
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 import cifar10_utils
 import cifar10_siamese_utils
 
@@ -242,8 +243,8 @@ def train_siamese():
     sess = tf.Session()
     saver = tf.train.Saver()
     #define things
-    logits_anchor = cnet.inference(x_anchor)
-    logits_in = cnet.inference(x_in)
+    logits_anchor, flatten_anchor, fc1_anchor, fc2_anchor = cnet.inference(x_anchor)
+    logits_in, flatten_in, fc1_in, fc2_in = cnet.inference(x_in)
 
 
 
@@ -265,7 +266,7 @@ def train_siamese():
         # loop
         for i in range(FLAGS.max_steps+1):
             ancbat, xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
-
+            
             sess.run(opt_iter, feed_dict={x_anchor: ancbat, x_in:xbat, y_true:ybat})
             if i % FLAGS.print_freq == 0:
                 ancbat, xbat, ybat = cifar10.validation.next_batch(100)
@@ -276,18 +277,30 @@ def train_siamese():
                       + str(val_loss)
                                  + "\n")
                 swriter.add_summary(
-                    sess.run(tf.scalar_summary("loss", val_loss))
+                    sess.run(tf.scalar_summary("loss", val_loss), 
+                             feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
                     ,i)
                 
                 
                 
             if i% FLAGS.checkpoint_freq == 0:
-                saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
+                    logits_anchors, flatten_anchors, fc1_anchors, fc2_anchors = sess.run(cnet.inference(x_anchor),
+                                                                                     feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
+                    logits_inp, flatten_inp, fc1_inp, fc2_inp = sess.run(cnet.inference(x_in),
+                                                                     feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
+                    np.save(FLAGS.checkpoint_dir +"/ConvNet/flattenanc", flatten_anchors)
+                    np.save(FLAGS.checkpoint_dir + "/ConvNet/fc1anc", fc1_anchors)
+                    np.save(FLAGS.checkpoint_dir + "/ConvNet/fc2anc", fc2_anchors)
+                    
+                    np.save(FLAGS.checkpoint_dir + "/ConvNet/fc2
+                                                                                        
+                                                                        
+                saver.save(sess, os.path.join(FLAGS.checkpoint_dir,
                                                   +"/siamese"+  "checkpoint.ckpt"))
         
             if i% FLAGS.eval_freq == 0:
                 ancbat, xbat, ybat = cifar10.test.next_batch(100)
-        
+                
                 sys.stderr.write("test loss:" + str(sess.run(loss, feed_dict={x_anchor: ancbat, x_in:xbat, y_true:ybat})) + "\n")
     
     ########################
@@ -342,7 +355,22 @@ def feature_extraction():
     fc1 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc1.npy")
     fc2 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc2.npy")
 
+    ts = TSNE(n_components =2)
+
+    f2 = ts.fit_transform(fc2)
+    f1 = ts.fit_transform(fc1)
+    ff = ts.fit_transform(flatten)
     
+    
+
+    plot1 = plt.imshow(ff[:,0],f[:,1])
+    plot2 = plt.imshow(f1[:,0],f[:,1])
+    plot3 = plt.imshow(f2[:,0], f[:,1])
+
+    plot1.savefig("flatten.png")
+    plot2.savefig("fc1.png")
+    plot3.savefig("fc2.png")
+
     
     
     
