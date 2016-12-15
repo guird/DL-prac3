@@ -291,6 +291,7 @@ class DataSet(object):
       perm = np.arange(self._num_examples)
       self._images = self._images[perm]
       self._lables = self._labels[perm]
+      self._index_in_epoch = 0
    
       
         
