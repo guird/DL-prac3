@@ -267,7 +267,7 @@ class DataSet(object):
       else:
         i = 0
       x1[curr_number] = anchorimage
-      sys.stderr.write(str(i))
+      sys.stderr.write(str(i) + "\n")
       if self._labels[i].argmax() == anchorlabel: #if the labels are the same
         if curr_same < num_same: #and IF the total number of same examples has not been reached
           x2[curr_number] = self._images[i]
