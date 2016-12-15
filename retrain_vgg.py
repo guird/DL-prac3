@@ -140,7 +140,7 @@ def train():
     #begin the training
     sess.run(tf.initialize_all_variables())
     sess.run(assign_ops)
-    swriter = tf.train.SummaryWriter(FLAGS.log_dir + "\vgg");
+    swriter = tf.train.SummaryWriter(FLAGS.log_dir + "/vgg");
 
     with sess:
         # loop
