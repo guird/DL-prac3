@@ -213,7 +213,7 @@ def load_pretrained_VGG16_pool5(input, scope_name='vgg'):
                                strides=[1, 2, 2, 1],
                                padding='SAME',
                                name='pool4')
-
+"""
         # conv5_1
         with tf.name_scope('conv5_1') as scope:
             vgg_W = vgg_weights['conv5_1_W']
@@ -272,7 +272,7 @@ def load_pretrained_VGG16_pool5(input, scope_name='vgg'):
                                padding='SAME',
                                name='pool5')
         print("pool5.shape: %s" % pool5.get_shape())
-
+"""
     return pool4, assign_ops
 
 def load_weights(weight_file):

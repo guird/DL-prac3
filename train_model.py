@@ -237,20 +237,20 @@ def train_siamese():
                         
         W1=tf.get_variable("W1",initializer=tf.random_normal([4096,384], stddev=weight_init_scale, dtype=tf.float32))
         W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192], stddev=weight_init_scale, dtype=tf.float32))
-        W3=tf.get_variable("W3", initializer = tf.random_normal([384,2], stddev=weight_init_scale, dtype=tf.float32))
+        
     
     
     sess = tf.Session()
     saver = tf.train.Saver()
     #define things
-    logits_anchor = cnet.inference(x_anchor)
-    logits_in = cnet.inference(x_in)
-
+    logits_anchor, _f1, _f2, _fl = cnet.inference(x_anchor)
+    logits_in, _f1, _f2, _fl = cnet.inference(x_in)
+    
 
 
 
     
-    loss= cnet.loss(logits_anchor, logits_in,y_true, 0.5)
+    loss= cnet.loss(logits_anchor, logits_in,y_true, 1.0)
     
     opt_iter = train_step(loss)
     sess.run(tf.initialize_all_variables())
@@ -276,6 +276,7 @@ def train_siamese():
                       + ", validation loss : " 
                       + str(val_loss)
                                  + "\n")
+                
                 swriter.add_summary(
                     sess.run(tf.scalar_summary("loss", val_loss), 
                              feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})

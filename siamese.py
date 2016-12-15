@@ -49,7 +49,7 @@ class Siamese(object):
             filter2 = tf.get_variable("filter2",dtype=tf.float32)
             W1 = tf.get_variable("W1",dtype=tf.float32)
             W2 = tf.get_variable("W2",dtype=tf.float32)
-            W3 = tf.get_variable("W3",dtype=tf.float32)
+           
             
             #start with conv layers
             conv1 = tf.nn.max_pool(tf.nn.relu(tf.nn.conv2d(x, filter1,  [1,1,1,1], "SAME" )),[1,3,3,1], [1,2,2,1], "SAME")
@@ -101,6 +101,7 @@ class Siamese(object):
         ########################
         # PUT YOUR CODE HERE  #
         ########################
+        
         Y = tf.cast(label, tf.float32)
         d2 = tf.reduce_sum(tf.square(tf.sub(channel_1, channel_2)),1)
         loss = tf.reduce_sum(tf.add(tf.mul(Y , d2), 
