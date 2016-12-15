@@ -363,7 +363,7 @@ def feature_extraction():
     
     
     sess = tf.Session()
-    ts = TSNE(n_components =2, perplexity=10)
+    ts = TSNE(n_components =2, perplexity=1)
 
     if FLAGS.train_model == 'linear':
         loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet/" + "checkpoint.ckpt" )
