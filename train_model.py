@@ -271,6 +271,7 @@ def train_siamese():
 
             sess.run(opt_iter, feed_dict={x_anchor: ancbat, x_in:xbat, y_true:ybat})
             if i % FLAGS.print_freq == 0:
+                sys.stderr.write(str(cifar10.validation._index_in_epoch) + "\n")
                 ancbat, xbat, ybat = cifar10.validation.next_batch(100)
                 val_loss = sess.run([loss], feed_dict={x_anchor: ancbat,x_in:xbat, y_true:ybat})
                 
