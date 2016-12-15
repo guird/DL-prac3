@@ -285,7 +285,7 @@ def train_siamese():
                 
                 
             if i% FLAGS.checkpoint_freq == 0:
-                saver.save(FLAGS.checkpoint_dir +"/siamese/"+  "checkpoint.ckpt")
+                saver.save(sess, FLAGS.checkpoint_dir +"/siamese/"+  "checkpoint.ckpt")
                 lo, flatsave, fc1save, fc2save = sess.run(cnet.inference(x_in), feed_dict={x_in:xbat, y_true: ybat, x_anchor:ancbat})
                 
                 loa, flatsavea, fc1savea, fc2savea = sess.run(cnet.inference(x_anchor), feed_dict={x_in:xbat, y_true: ybat, x_anchor:ancbat})
@@ -361,7 +361,7 @@ def feature_extraction():
     
     
     sess = tf.Session()
-    ts = TSNE(n_components =2, perplexity=5)
+    ts = TSNE(n_components =2, perplexity=10)
 
     if FLAGS.train_model == 'linear':
         loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet/" + "checkpoint.ckpt" )
@@ -381,11 +381,11 @@ def feature_extraction():
     
 
     plot1 = plt.scatter(ff[:,0],ff[:,1])
-    plt.savefig("flatten.png")
+    plot1.savefig("flatten.png")
     plot2 = plt.scatter(f1[:,0],f1[:,1])
-    plt.savefig("fc1.png")
+    plot2.savefig("fc1.png")
     plot3 = plt.scatter(f2[:,0], f2[:,1])
-    plt.savefig("fc2.png")
+    plot3.savefig("fc2.png")
     
     
 
