@@ -140,8 +140,9 @@ def train():
     #begin the training
     sess.run(tf.initialize_all_variables())
     sess.run(assign_ops)
+    swriter = tf.train.SummaryWriter(FLAGS.log_dir + "\vgg");
+
     with sess:
-        swriter = tf.train.SummaryWriter(FLAGS.log_dir + "\vgg");
         # loop
         for i in range(FLAGS.max_steps+1):
             xbat, ybat = cifar10.train.next_batch(FLAGS.batch_size)
@@ -158,7 +159,7 @@ def train():
                       + str(val_acc) 
                                  + "\n")
                 swriter.add_summary(sess.run(tf.scalar_summary("accuracy", val_acc)), i)
-                #why?
+                
                 
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, FLAGS.checkpoint_dir + 
