@@ -261,12 +261,13 @@ class DataSet(object):
     
 
     while curr_number < batch_size:
-      if i < self._num_examples:
+      if i +1< self._num_examples:
+
         i += 1
       else:
         i = 0
       x1[curr_number] = anchorimage
-
+      print(i)
       if self._labels[i].argmax() == anchorlabel: #if the labels are the same
         if curr_same < num_same: #and IF the total number of same examples has not been reached
           x2[curr_number] = self._images[i]
@@ -283,10 +284,8 @@ class DataSet(object):
           curr_number +=1
           curr_different +=1
     
-    self._index_in_epoch +=1
-    print(self._index_in_epoch)
-    print(self._num_examples)
-    if self._index_in_epoch == self._num_examples:
+    self._index_in_epoch +=batch_size
+    if self._index_in_epoch >= self._num_examples:
       self._epochs_completed +=1
       perm = np.arange(self._num_examples)
       self._images = self._images[perm]
