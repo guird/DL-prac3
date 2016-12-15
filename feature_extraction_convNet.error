@@ -1,0 +1,4 @@
+  File "train_model.py", line 333
+    with tf.variable_scope("Siamese",reuse=None):
+    ^
+IndentationError: unexpected indent
