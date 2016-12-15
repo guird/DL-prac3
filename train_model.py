@@ -330,34 +330,45 @@ def feature_extraction():
 
     if FLAGS.train_model == 'siamese':
         x_anchor = tf.placeholder(tf.float32, [None, 32, 32, 3])
-
-    with tf.variable_scope("ConvNet",reuse=None):
-        filter1=tf.get_variable("filter1",initializer=tf.random_normal([5,5,3,64],  dtype=tf.float32))
-        filter2=tf.get_variable("filter2",initializer=tf.random_normal([5,5,64,64],  dtype=tf.float32))
-
+            with tf.variable_scope("Siamese",reuse=None):
+                filter1=tf.get_variable("filter1",initializer=tf.random_normal([5,5,3,64],  dtype=tf.float32))
+                filter2=tf.get_variable("filter2",initializer=tf.random_normal([5,5,64,64],  dtype=tf.float32))
+                
+                
+                W1=tf.get_variable("W1",initializer=tf.random_normal([4096,384],  dtype=tf.float32))
+                W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192],  dtype=tf.float32))
+    else:
+        with tf.variable_scope("ConvNet",reuse=None):
+            filter1=tf.get_variable("filter1",initializer=tf.random_normal([5,5,3,64],  dtype=tf.float32))
+            filter2=tf.get_variable("filter2",initializer=tf.random_normal([5,5,64,64],  dtype=tf.float32))
+            
                         
-        W1=tf.get_variable("W1",initializer=tf.random_normal([4096,384],  dtype=tf.float32))
-        W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192],  dtype=tf.float32))
-        W3=tf.get_variable("W3", initializer = tf.random_normal([192,10],  dtype=tf.float32))
+            W1=tf.get_variable("W1",initializer=tf.random_normal([4096,384],  dtype=tf.float32))
+            W2=tf.get_variable("W2", initializer= tf.random_normal([384, 192],  dtype=tf.float32))
+            W3=tf.get_variable("W3", initializer = tf.random_normal([192,10],  dtype=tf.float32))
     
 
     loader = tf.train.Saver()
     
     
     sess = tf.Session()
-    
-    loader.restore(sess, FLAGS.checkpoint_dir + "ConvNet/" + "checkpoint.ckpt" )
-    
-    flatten = np.load(FLAGS.checkpoint_dir + "/ConvNet/flatten.npy")
-    fc1 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc1.npy")
-    fc2 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc2.npy")
+    ts = TSNE(n_components =2, perplexity=20)
 
-    ts = TSNE(n_components =2)
-
-    f2 = ts.fit_transform(fc2)
-    f1 = ts.fit_transform(fc1)
-    ff = ts.fit_transform(flatten)
+    if FLAGS.train_model == linear:
+        loader.restore(sess, FLAGS.checkpoint_dir + "ConvNet/" + "checkpoint.ckpt" )
     
+        flatten = np.load(FLAGS.checkpoint_dir + "/ConvNet/flatten.npy")
+        fc1 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc1.npy")
+        fc2 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc2.npy")
+        
+        
+        
+        f2 = ts.fit_transform(fc2)
+        f1 = ts.fit_transform(fc1)
+        ff = ts.fit_transform(flatten)
+    else:
+        loader.restore(sess, FLAGS.checkpoint_dir + "Siamese/" + "checkpoint.ckpt")
+        
     
 
     plot1 = plt.scatter(ff[:,0],ff[:,1])
