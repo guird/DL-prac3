@@ -320,10 +320,17 @@ def feature_extraction():
     if FLAGS.train_model == 'linear':
         cnet = ConvNet()
         cifar10 = cifar10_utils.get_cifar10()
+    else:
+        cnet = Siamese()
+        cifar10 =cifar10_utils.get_cifar10()
+
 
     x_in = tf.placeholder(tf.float32, [None,32,32,3])
     y_true = tf.placeholder(tf.float32, [None,10])
-    
+
+    if FLAGS.train_model == 'siamese':
+        x_anchor = tf.placeholder(tf.float32, [None, 32, 32, 3])
+
     with tf.variable_scope("ConvNet",reuse=None):
         filter1=tf.get_variable("filter1",initializer=tf.random_normal([5,5,3,64],  dtype=tf.float32))
         filter2=tf.get_variable("filter2",initializer=tf.random_normal([5,5,64,64],  dtype=tf.float32))
@@ -338,8 +345,8 @@ def feature_extraction():
     
     
     sess = tf.Session()
-
-    loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet/" + "checkpoint.ckpt" )
+    
+    loader.restore(sess, FLAGS.checkpoint_dir + "ConvNet/" + "checkpoint.ckpt" )
     
     flatten = np.load(FLAGS.checkpoint_dir + "/ConvNet/flatten.npy")
     fc1 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc1.npy")
@@ -360,7 +367,7 @@ def feature_extraction():
     plot3 = plt.scatter(f2[:,0], f2[:,1])
     plt.savefig("fc2.png")
     
-
+    
 
     
     
