@@ -258,11 +258,8 @@ class DataSet(object):
     i = start
     
     #this loop will go through images until it has an appropriate batch
-    if self._index_in_epoch == self._num_examples:
-      self._epochs_completed +=1
-      perm = np.arange(self._num_examples)
-      self._images = self._images[perm]
-      self._lables = self._labels[perm]
+    
+
     while curr_number < batch_size:
       if i < self._num_examples:
         i += 1
@@ -287,7 +284,14 @@ class DataSet(object):
           curr_different +=1
     
     self._index_in_epoch +=1
-
+    print(self._index_in_epoch)
+    print(self._num_examples)
+    if self._index_in_epoch == self._num_examples:
+      self._epochs_completed +=1
+      perm = np.arange(self._num_examples)
+      self._images = self._images[perm]
+      self._lables = self._labels[perm]
+   
       
         
     ########################
