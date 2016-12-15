@@ -8,6 +8,8 @@ import sys
 
 import tensorflow as tf
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import cifar10_utils
 import cifar10_siamese_utils
