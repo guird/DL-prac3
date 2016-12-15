@@ -104,7 +104,7 @@ class Siamese(object):
         
         Y = tf.cast(label, tf.float32)
         d2 = tf.reduce_sum(tf.square(tf.sub(channel_1, channel_2)),1)
-        loss = tf.reduce_sum(tf.add(tf.mul(Y , d2), 
+        loss = tf.reduce_mean(tf.add(tf.mul(Y , d2), 
                       tf.mul(tf.sub(1.0, Y), tf.maximum
                              (tf.sub(margin,d2),0))))
                                                        

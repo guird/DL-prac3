@@ -159,7 +159,10 @@ def train():
                       + str(val_acc) 
                                  + "\n")
                 swriter.add_summary(sess.run(tf.scalar_summary("accuracy", val_acc)), i)
-                
+            #train whoe network after some point
+            if i == FLAGS.refine_after_k:
+                pool5 = p5
+            
                 
             if i% FLAGS.checkpoint_freq == 0:
                 saver.save(sess, FLAGS.checkpoint_dir + 
