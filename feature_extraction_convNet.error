@@ -9,7 +9,7 @@ major: 3 minor: 5 memoryClockRate (GHz) 0.745
 pciBusID 0000:02:00.0
 Total memory: 11.17GiB
 Free memory: 11.10GiB
-W tensorflow/stream_executor/cuda/cuda_driver.cc:572] creating context when one is currently active; existing: 0x3954b20
+W tensorflow/stream_executor/cuda/cuda_driver.cc:572] creating context when one is currently active; existing: 0x488f4e0
 I tensorflow/core/common_runtime/gpu/gpu_init.cc:102] Found device 1 with properties: 
 name: Tesla K40m
 major: 3 minor: 5 memoryClockRate (GHz) 0.745
@@ -24,14 +24,26 @@ I tensorflow/core/common_runtime/gpu/gpu_init.cc:136] 1:   N Y
 I tensorflow/core/common_runtime/gpu/gpu_device.cc:838] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K40m, pci bus id: 0000:02:00.0)
 I tensorflow/core/common_runtime/gpu/gpu_device.cc:838] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K40m, pci bus id: 0000:82:00.0)
 Traceback (most recent call last):
-  File "train_model.py", line 438, in <module>
+  File "train_model.py", line 441, in <module>
     tf.app.run()
   File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/platform/app.py", line 30, in run
     sys.exit(main(sys.argv))
-  File "train_model.py", line 406, in main
+  File "train_model.py", line 409, in main
     feature_extraction()
-  File "train_model.py", line 340, in feature_extraction
-    loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet" + "checkpoint.ckpt" )
-  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/tensorflow/python/training/saver.py", line 1127, in restore
-    raise ValueError("Restore called with invalid save path %s" % save_path)
-ValueError: Restore called with invalid save path ./checkpoints/ConvNetcheckpoint.ckpt
+  File "train_model.py", line 356, in feature_extraction
+    plot1 = plt.scatter(ff[:,0],ff[:,1])
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/matplotlib/pyplot.py", line 3241, in scatter
+    ax = gca()
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/matplotlib/pyplot.py", line 928, in gca
+    return gcf().gca(**kwargs)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/matplotlib/pyplot.py", line 578, in gcf
+    return figure()
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/matplotlib/pyplot.py", line 527, in figure
+    **kwargs)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/matplotlib/backends/backend_tkagg.py", line 84, in new_figure_manager
+    return new_figure_manager_given_figure(num, figure)
+  File "/hpc/sw/python-2.7.11/lib/python2.7/site-packages/matplotlib/backends/backend_tkagg.py", line 92, in new_figure_manager_given_figure
+    window = Tk.Tk()
+  File "/hpc/sw/python-2.7.11/lib/python2.7/lib-tk/Tkinter.py", line 1814, in __init__
+    self.tk = _tkinter.create(screenName, baseName, className, interactive, wantobjects, useTk, sync, use)
+_tkinter.TclError: no display name and no $DISPLAY environment variable
