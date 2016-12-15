@@ -271,7 +271,7 @@ def train_siamese():
 
             sess.run(opt_iter, feed_dict={x_anchor: ancbat, x_in:xbat, y_true:ybat})
             if i % FLAGS.print_freq == 0:
-                sys.stderr.write(str(cifar10.validation._index_in_epoch) + "\n")
+                
                 ancbat, xbat, ybat = cifar10.validation.next_batch(100)
                 val_loss = sess.run([loss], feed_dict={x_anchor: ancbat,x_in:xbat, y_true:ybat})
                 
@@ -292,7 +292,10 @@ def train_siamese():
                 lo, flatsave, fc1save, fc2save = sess.run(cnet.inference(x_in), feed_dict={x_in:xbat, y_true: ybat, x_anchor:ancbat})
                 
                 loa, flatsavea, fc1savea, fc2savea = sess.run(cnet.inference(x_anchor), feed_dict={x_in:xbat, y_true: ybat, x_anchor:ancbat})
-                 
+                
+                np.save(FLAGS.checkpoint_dir + "/Siamese/other", lo)
+                np.save(FLAGS.checkpoint_dir + "/Siamese/anchor", loa)
+                """
                 np.save(FLAGS.checkpoint_dir +"/Siamese/flatten", flatsave)
                 np.save(FLAGS.checkpoint_dir + "/Siamese/fc1", fc1save)
                 np.save(FLAGS.checkpoint_dir + "/Siamese/fc2", fc2save)
@@ -300,6 +303,7 @@ def train_siamese():
                 np.save(FLAGS.checkpoint_dir +"/Siamese/flattena", flatsavea)
                 np.save(FLAGS.checkpoint_dir + "/Siamese/fc1a", fc1savea)
                 np.save(FLAGS.checkpoint_dir + "/Siamese/fc2a", fc2savea)
+                """
             if i% FLAGS.eval_freq == 0:
                 ancbat, xbat, ybat = cifar10.test.next_batch(100)
         
@@ -378,17 +382,25 @@ def feature_extraction():
         f2 = ts.fit_transform(fc2)
         f1 = ts.fit_transform(fc1)
         ff = ts.fit_transform(flatten)
+        
+        plot1 = plt.scatter(ff[:,0],ff[:,1])
+        plt.savefig("convflatten.png")
+        plot2 = plt.scatter(f1[:,0],f1[:,1])
+        plt.savefig("convfc1.png")
+        plot3 = plt.scatter(f2[:,0], f2[:,1])
+        plt.savefig("convfc2.png")
     else:
         loader.restore(sess, FLAGS.checkpoint_dir + "Siamese/" + "checkpoint.ckpt")
         
-    
+        lo = np.load(FLAGS.checkpoint_dir + "/Siamese/other.npy")
+        loa = no.load(FLAGS.checkpoint_dir + "/Siamese/anchor.npy")
+        
+        plot1 = plt.scatter(loa[:,0],loa[:,1])
+        plt.savefig("siamanchor.png")
+        plot2 = plt.scatter(lo[:,0],lo[:,1])
+        plt.savefig("siamother.png")
 
-    plot1 = plt.scatter(ff[:,0],ff[:,1])
-    plt.savefig("flatten.png")
-    plot2 = plt.scatter(f1[:,0],f1[:,1])
-    plt.savefig("fc1.png")
-    plot3 = plt.scatter(f2[:,0], f2[:,1])
-    plt.savefig("fc2.png")
+
     
     
 
