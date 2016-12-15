@@ -339,7 +339,7 @@ def feature_extraction():
     
     sess = tf.Session()
 
-    loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet" + "checkpoint.ckpt" )
+    loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet/" + "checkpoint.ckpt" )
     
     flatten = np.load(FLAGS.checkpoint_dir + "/ConvNet/flatten.npy")
     fc1 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc1.npy")
@@ -353,13 +353,14 @@ def feature_extraction():
     
     
 
-    plot1 = plt.imshow(ff[:,0],f[:,1])
-    plot2 = plt.imshow(f1[:,0],f[:,1])
-    plot3 = plt.imshow(f2[:,0], f[:,1])
+    plot1 = plt.scatter(ff[:,0],ff[:,1])
+    plt.savefig("flatten.png")
+    plot2 = plt.scatter(f1[:,0],f1[:,1])
+    plt.savefig("fc1.png")
+    plot3 = plt.scatter(f2[:,0], f2[:,1])
+    plt.savefig("fc2.png")
+    
 
-    plot1.savefig("flatten.png")
-    plot2.savefig("fc1.png")
-    plot3.savefig("fc2.png")
 
     
     
