@@ -383,11 +383,11 @@ def feature_extraction():
     
 
     plot1 = plt.scatter(ff[:,0],ff[:,1])
-    plot1.savefig("flatten.png")
+    plt.savefig("flatten.png")
     plot2 = plt.scatter(f1[:,0],f1[:,1])
-    plot2.savefig("fc1.png")
+    plt.savefig("fc1.png")
     plot3 = plt.scatter(f2[:,0], f2[:,1])
-    plot3.savefig("fc2.png")
+    plt.savefig("fc2.png")
     
     
 
