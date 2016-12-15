@@ -277,17 +277,26 @@ def train_siamese():
                       + str(val_loss)
                                  + "\n")
                 
-                swriter.add_summary(
-                    sess.run(tf.scalar_summary("loss", val_loss), 
-                             feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
-                    ,i)
+                #swriter.add_summary(
+                #    sess.run(tf.scalar_summary("loss", val_loss), 
+                #             feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
+                #    ,i)
                 
                 
                 
             if i% FLAGS.checkpoint_freq == 0:
-                saver.save(sess, os.path.join(FLAGS.checkpoint_dir, 
-                                                  +"/siamese"+  "checkpoint.ckpt"))
+                saver.save(FLAGS.checkpoint_dir +"/siamese/"+  "checkpoint.ckpt")
+                lo, flatsave, fc1save, fc2save = sess.run(cnet.inference(x_in), feed_dict={x_in:xbat, y_true: ybat, x_anchor:ancbat})
+                
+                loa, flatsavea, fc1savea, fc2savea = sess.run(cnet.inference(x_anchor), feed_dict={x_in:xbat, y_true: ybat, x_anchor:ancbat})
+                 
+                np.save(FLAGS.checkpoint_dir +"/siamese/flatten", flatsave)
+                np.save(FLAGS.checkpoint_dir + "/siamese/fc1", fc1save)
+                np.save(FLAGS.checkpoint_dir + "/siamese/fc2", fc2save)
         
+                np.save(FLAGS.checkpoint_dir +"/siamese/flattena", flatsavea)
+                np.save(FLAGS.checkpoint_dir + "/siamese/fc1a", fc1savea)
+                np.save(FLAGS.checkpoint_dir + "/siamese/fc2a", fc2savea)
             if i% FLAGS.eval_freq == 0:
                 ancbat, xbat, ybat = cifar10.test.next_batch(100)
         
@@ -354,8 +363,8 @@ def feature_extraction():
     sess = tf.Session()
     ts = TSNE(n_components =2, perplexity=20)
 
-    if FLAGS.train_model == linear:
-        loader.restore(sess, FLAGS.checkpoint_dir + "ConvNet/" + "checkpoint.ckpt" )
+    if FLAGS.train_model == 'linear':
+        loader.restore(sess, FLAGS.checkpoint_dir + "/ConvNet/" + "checkpoint.ckpt" )
     
         flatten = np.load(FLAGS.checkpoint_dir + "/ConvNet/flatten.npy")
         fc1 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc1.npy")
