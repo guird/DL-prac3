@@ -9,4 +9,4 @@ module load python/2.7.11
 module load cuda/7.5.18
 module load cudnn/7.5-v5
 
-python retrain_vgg.py  
+python retrain_vgg.py  --refine_after_k 2000
