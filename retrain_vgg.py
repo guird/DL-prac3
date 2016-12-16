@@ -7,9 +7,17 @@ import os
 
 import tensorflow as tf
 import numpy as np
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 import vgg
 import cifar10_utils
 import sys
+from sklearn.manifold import TSNE
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.svm import LinearSVC
 
 LEARNING_RATE_DEFAULT = 1e-4
 BATCH_SIZE_DEFAULT = 128
@@ -168,15 +176,46 @@ def train():
                 saver.save(sess, FLAGS.checkpoint_dir + 
                                                   "/VGG/"+ "checkpoint.ckpt")
                 flatsave, fc1save, fc2save = sess.run([flatten, fc1, fc2], feed_dict = {x_in:xbat, y_true:ybat})
-                np.save(FLAGS.checkpoint_dir +"/VGG/flatten", flatsave)
-                np.save(FLAGS.checkpoint_dir + "/VGG/fc1", fc1save)
-                np.save(FLAGS.checkpoint_dir + "/VGG/fc2", fc2save)
+                labelsave = ybat
+                #np.save(FLAGS.checkpoint_dir +"/VGG/flatten", flatsave)
+                #np.save(FLAGS.checkpoint_dir + "/VGG/fc1", fc1save)
+                #np.save(FLAGS.checkpoint_dir + "/VGG/fc2", fc2save)
 
             if i%FLAGS.eval_freq ==0:
                 xbat, ybat = cifar10.test.next_batch(100)
         
                 sys.stderr.write("test accuracy:" + str(sess.run(acc, feed_dict={x_in:xbat, y_true:ybat})) + "\n")
-    
+
+        ts = TSNE(n_components=2, perplexity=10)
+
+        f2 = ts.fit_transform(fc2save)
+        f1 = ts.fit_transform(fc1save)
+        ff = ts.fit_transform(flatsave)
+        labels = labelsave
+        plot1 = plt.scatter(ff[:,0],ff[:,1], color=labels)
+        plt.savefig("vggflatten.png")
+        plot2 = plt.scatter(f1[:,0],f1[:,1], color=labels)
+        plt.savefig("vggfc1.png")
+        plot3 = plt.scatter(f2[:,0], f2[:,1], color=labels)
+        plt.savefig("vggfc2.png")
+        
+        #1vsrest
+        lvr = OneVsRestClassifier(LinearSVC())
+        lvrf2 = lvr.fit(f2, labels).predict(f2)
+        lvrf1 = lvr.fit(f1, labels).predict(f1)
+        lvrff = lvr.fit(ff, labels).predict(ff)
+        
+        classes = range(10)
+        for i in classes:
+            accf2 = np.mean(1*(lvrf2 == labels))
+            accf1 = np.mean(1*(lvrf1 == labels))
+            accff = np.mean(1*(lvrff == labels))
+            sys.stderr.write("for class " + str(i) +", OVR accuracies are: \n"
+                             +"\t" +str(accf2) + "\t for fc2\n" 
+                             +"\t" +str(accf1) + "\t for fc1\n" 
+                             +"\t" +str(accf2) + "\t for flatten\n")
+
+                
     ########################
     # END OF YOUR CODE    #
     ########################
