@@ -10,3 +10,4 @@ module load cuda/7.5.18
 module load cudnn/7.5-v5
 
 python train_model.py --max_steps 5000
+python train_model.py --is_train ""

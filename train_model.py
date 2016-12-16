@@ -18,6 +18,8 @@ from convnet import ConvNet
 from siamese import Siamese
 
 from sklearn.manifold import TSNE
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.svm import LinearSVC
 
 LEARNING_RATE_DEFAULT = 1e-4
 BATCH_SIZE_DEFAULT = 128
@@ -163,6 +165,7 @@ def train():
                 np.save(FLAGS.checkpoint_dir +"/ConvNet/flatten", flatsave)
                 np.save(FLAGS.checkpoint_dir + "/ConvNet/fc1", fc1save)
                 np.save(FLAGS.checkpoint_dir + "/ConvNet/fc2", fc2save)
+                np.save(FLAGS.checkpoint_dir + "/ConvNet/labels", ybat)
                 saver.save(sess, FLAGS.checkpoint_dir + 
                                                   "/ConvNet/" + "checkpoint.ckpt")
                 
@@ -226,7 +229,7 @@ def train_siamese():
 
     cnet = Siamese()
     
-    swriter = tf.train.SummaryWriter(FLAGS.log_dir + "/Siamese")
+    swriter = tf.train.SummaryWriter(FLAGS.log_dir + "/Siamese/")
     
     x_anchor = tf.placeholder(tf.float32, [None, 32,32,3]) 
     x_in = tf.placeholder(tf.float32, [None,32,32,3])
@@ -280,10 +283,10 @@ def train_siamese():
                       + str(val_loss)
                                  + "\n")
                 
-                #swriter.add_summary(
-                #    sess.run(tf.scalar_summary("loss", val_loss), 
-                #             feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
-                #    ,i)
+                swriter.add_summary(
+                    sess.run(tf.scalar_summary("loss", val_loss), 
+                             feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
+                    ,i)
                 
                 
                 
@@ -376,7 +379,7 @@ def feature_extraction():
         flatten = np.load(FLAGS.checkpoint_dir + "/ConvNet/flatten.npy")
         fc1 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc1.npy")
         fc2 = np.load(FLAGS.checkpoint_dir + "/ConvNet/fc2.npy")
-        
+        labels = np.load(FLAGS.checkpoint_dir + "/ConvNet/labels.npy")
         
         
         f2 = ts.fit_transform(fc2)
@@ -389,20 +392,38 @@ def feature_extraction():
         plt.savefig("convfc1.png")
         plot3 = plt.scatter(f2[:,0], f2[:,1])
         plt.savefig("convfc2.png")
+
+        #1vsrest
+        lvr = OneVsRestClassifier(LinearSVC())
+        lvrf2 = lvr.fit(f2, labels).predict(f2)
+        lvrf1 = lvr.fit(f1, labels).predict(f1)
+        lvrff = lvr.fit(ff, labels).predict(ff)
+
+        classes = range(10)
+        for i in classes:
+            accf2 = np.mean(1*(lvrf2 == labels))
+            accf1 = np.mean(1*(lvrf1 == labels))
+            accff = np.mean(1*(lvrff == labels))
+            sys.stderr.write("for class " + str(i) +", OVR accuracies are: \n"
+                             +"\t" +str(accf2) + "\t for fc2\n" 
+                             +"\t" +str(accf1) + "\t for fc1\n" 
+                             +"\t" +str(accf2) + "\t for flatten\n")
+
     else:
-        loader.restore(sess, FLAGS.checkpoint_dir + "Siamese/" + "checkpoint.ckpt")
+        loader.restore(sess, FLAGS.checkpoint_dir + "/Siamese/" + "checkpoint.ckpt")
         
         lo = np.load(FLAGS.checkpoint_dir + "/Siamese/other.npy")
-        loa = no.load(FLAGS.checkpoint_dir + "/Siamese/anchor.npy")
+        loa = np.load(FLAGS.checkpoint_dir + "/Siamese/anchor.npy")
         
-        plot1 = plt.scatter(loa[:,0],loa[:,1])
+        lop = ts.fit_transform(lo)
+        loap = tf.fit_transform(loa)
+        
+        plot1 = plt.scatter(loap[:,0],loap[:,1])
         plt.savefig("siamanchor.png")
-        plot2 = plt.scatter(lo[:,0],lo[:,1])
+        plot2 = plt.scatter(lop[:,0],lop[:,1])
         plt.savefig("siamother.png")
 
 
-    
-    
 
     
     
