@@ -192,11 +192,11 @@ def train():
         f1 = ts.fit_transform(fc1save)
         ff = ts.fit_transform(flatsave)
         labels = labelsave
-        plot1 = plt.scatter(ff[:,0],ff[:,1], color=labels)
+        plot1 = plt.scatter(ff[:,0],ff[:,1], color=np.argmax(labels))
         plt.savefig("vggflatten.png")
-        plot2 = plt.scatter(f1[:,0],f1[:,1], color=labels)
+        plot2 = plt.scatter(f1[:,0],f1[:,1], color=np.argmax(labels))
         plt.savefig("vggfc1.png")
-        plot3 = plt.scatter(f2[:,0], f2[:,1], color=labels)
+        plot3 = plt.scatter(f2[:,0], f2[:,1], color=np.argmax(labels))
         plt.savefig("vggfc2.png")
         
         #1vsrest
