@@ -416,7 +416,7 @@ def feature_extraction():
         loa = np.load(FLAGS.checkpoint_dir + "/Siamese/anchor.npy")
         
         lop = ts.fit_transform(lo)
-        loap = tf.fit_transform(loa)
+        loap = ts.fit_transform(loa)
         
         plot1 = plt.scatter(loap[:,0],loap[:,1])
         plt.savefig("siamanchor.png")
