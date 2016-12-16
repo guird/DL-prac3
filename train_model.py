@@ -229,7 +229,7 @@ def train_siamese():
 
     cnet = Siamese()
     
-    swriter = tf.train.SummaryWriter(FLAGS.log_dir + "/Siamese/")
+    #swriter = tf.train.SummaryWriter(FLAGS.log_dir + "/Siamese/")
     
     x_anchor = tf.placeholder(tf.float32, [None, 32,32,3]) 
     x_in = tf.placeholder(tf.float32, [None,32,32,3])
@@ -283,10 +283,10 @@ def train_siamese():
                       + str(val_loss)
                                  + "\n")
                 
-                swriter.add_summary(
-                    sess.run(tf.scalar_summary("loss", val_loss), 
-                             feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
-                    ,i)
+                #swriter.add_summary(
+                #    sess.run(tf.scalar_summary("loss", val_loss), 
+                #             feed_dict = {x_anchor: ancbat, x_in: xbat, y_true:ybat})
+                #    ,i)
                 
                 
                 
