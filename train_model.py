@@ -386,11 +386,11 @@ def feature_extraction():
         f1 = ts.fit_transform(fc1)
         ff = ts.fit_transform(flatten)
         
-        plot1 = plt.scatter(ff[:,0],ff[:,1], color=labels)
+        plot1 = plt.scatter(ff[:,0],ff[:,1], color=labels.argmax(1))
         plt.savefig("convflatten.png")
-        plot2 = plt.scatter(f1[:,0],f1[:,1], color=labels)
+        plot2 = plt.scatter(f1[:,0],f1[:,1], color=labels.argmax(1))
         plt.savefig("convfc1.png")
-        plot3 = plt.scatter(f2[:,0], f2[:,1], color=labels)
+        plot3 = plt.scatter(f2[:,0], f2[:,1], color=labels.argmax(1))
         plt.savefig("convfc2.png")
 
         #1vsrest
